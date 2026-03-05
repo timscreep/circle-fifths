@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Тренажер тональностей (Auto-Render)</title>
+        <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
+        <style>
+            body {
+                font-family: "Segoe UI", sans-serif;
+                background-color: #1a1a1d;
+                color: #efefef;
+                margin: 0;
+                display: flex;
+                min-height: 100vh;
+            }
+            #sidebar {
+                width: 260px;
+                background: #25252b;
+                padding: 25px;
+                box-shadow: 2px 0 15px rgba(0, 0, 0, 0.5);
+                display: flex;
+                flex-direction: column;
+                gap: 25px;
+            }
+            #sidebar h2 {
+                color: #ffca28;
+                margin-top: 0;
+                border-bottom: 1px solid #444;
+                padding-bottom: 10px;
+            }
+            .setting-group {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .setting-group strong {
+                color: #888;
+                text-transform: uppercase;
+                font-size: 0.8rem;
+            }
+
+            #main-area {
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 40px;
+            }
+            #score-board {
+                font-size: 1.5rem;
+                margin-bottom: 20px;
+                color: #4caf50;
+                font-weight: bold;
+            }
+
+            /* Контейнер для отрисовки нот */
+            #notation-container {
+                background: white; /* Ноты лучше смотрятся на белом */
+                border-radius: 12px;
+                padding: 10px;
+                margin-bottom: 40px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+                min-width: 200px;
+                height: 150px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            #circle-container {
+                position: relative;
+                width: 400px;
+                height: 400px;
+            }
+            .key-btn {
+                position: absolute;
+                width: 65px;
+                height: 65px;
+                border-radius: 50%;
+                background: #33333d;
+                color: white;
+                border: 2px solid #555;
+                cursor: pointer;
+                font-weight: bold;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: 0.2s;
+                transform: translate(-50%, -50%);
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            }
+            .key-btn:hover {
+                background: #4a4a58;
+                border-color: #ffca28;
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            .correct {
+                background: #2e7d32 !important;
+                border-color: #a5d6a7 !important;
+            }
+            .wrong {
+                background: #c62828 !important;
+                border-color: #ef9a9a !important;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="sidebar">
+            <h2>Настройки</h2>
+            <div class="setting-group">
+                <strong>Лад:</strong>
+                <label
+                    ><input
+                        type="radio"
+                        name="mode"
+                        value="major"
+                        checked
+                        onchange="updateSettings()"
+                    />
+                    Мажор</label
+                >
+                <label
+                    ><input
+                        type="radio"
+                        name="mode"
+                        value="minor"
+                        onchange="updateSettings()"
+                    />
+                    Минор</label
+                >
+            </div>
+            <div class="setting-group">
+                <strong>Система:</strong>
+                <label
+                    ><input
+                        type="radio"
+                        name="system"
+                        value="english"
+                        checked
+                        onchange="updateSettings()"
+                    />
+                    Английская (B)</label
+                >
+                <label
+                    ><input
+                        type="radio"
+                        name="system"
+                        value="german"
+                        onchange="updateSettings()"
+                    />
+                    Немецкая (H/B)</label
+                >
+                <label
+                    ><input
+                        type="radio"
+                        name="system"
+                        value="russian"
+                        onchange="updateSettings()"
+                    />
+                    Русская (Си)</label
+                >
+            </div>
+        </div>
+
+        <div id="main-area">
+            <div id="score-board">Счет: 0</div>
+            <div id="notation-container"></div>
+            <div id="circle-container"></div>
+        </div>
+
+        <script>
+            const { Renderer, Stave } = Vex.Flow;
+
+            // Спецификации для VexFlow (код знаков)
+            const keys = [
+                {
+                    id: "C",
+                    spec: "C",
+                    names: {
+                        english: { major: "C", minor: "a" },
+                        german: { major: "C", minor: "a" },
+                        russian: { major: "До", minor: "ля" },
+                    },
+                },
+                {
+                    id: "G",
+                    spec: "G",
+                    names: {
+                        english: { major: "G", minor: "e" },
+                        german: { major: "G", minor: "e" },
+                        russian: { major: "Соль", minor: "ми" },
+                    },
+                },
+                {
+                    id: "D",
+                    spec: "D",
+                    names: {
+                        english: { major: "D", minor: "b" },
+                        german: { major: "D", minor: "h" },
+                        russian: { major: "Ре", minor: "си" },
+                    },
+                },
+                {
+                    id: "A",
+                    spec: "A",
+                    names: {
+                        english: { major: "A", minor: "f#" },
+                        german: { major: "A", minor: "fis" },
+                        russian: { major: "Ля", minor: "фа#" },
+                    },
+                },
+                {
+                    id: "E",
+                    spec: "E",
+                    names: {
+                        english: { major: "E", minor: "c#" },
+                        german: { major: "E", minor: "cis" },
+                        russian: { major: "Ми", minor: "до#" },
+                    },
+                },
+                {
+                    id: "B",
+                    spec: "B",
+                    names: {
+                        english: { major: "B", minor: "g#" },
+                        german: { major: "H", minor: "gis" },
+                        russian: { major: "Си", minor: "соль#" },
+                    },
+                },
+                {
+                    id: "F#",
+                    spec: "F#",
+                    names: {
+                        english: { major: "F#", minor: "d#" },
+                        german: { major: "Fis", minor: "dis" },
+                        russian: { major: "Фа#", minor: "ре#" },
+                    },
+                },
+                {
+                    id: "C#",
+                    spec: "C#",
+                    names: {
+                        english: { major: "C#", minor: "a#" },
+                        german: { major: "Cis", minor: "ais" },
+                        russian: { major: "До#", minor: "ля#" },
+                    },
+                },
+                {
+                    id: "Cb",
+                    spec: "Cb",
+                    names: {
+                        english: { major: "Cb", minor: "ab" },
+                        german: { major: "Ces", minor: "as" },
+                        russian: { major: "Доb", minor: "ляb" },
+                    },
+                },
+                {
+                    id: "Gb",
+                    spec: "Gb",
+                    names: {
+                        english: { major: "Gb", minor: "eb" },
+                        german: { major: "Ges", minor: "es" },
+                        russian: { major: "Сольb", minor: "миb" },
+                    },
+                },
+                {
+                    id: "Db",
+                    spec: "Db",
+                    names: {
+                        english: { major: "Db", minor: "bb" },
+                        german: { major: "Des", minor: "b" },
+                        russian: { major: "Реb", minor: "сиb" },
+                    },
+                },
+                {
+                    id: "Ab",
+                    spec: "Ab",
+                    names: {
+                        english: { major: "Ab", minor: "f" },
+                        german: { major: "As", minor: "f" },
+                        russian: { major: "Ляb", minor: "фа" },
+                    },
+                },
+                {
+                    id: "Eb",
+                    spec: "Eb",
+                    names: {
+                        english: { major: "Eb", minor: "c" },
+                        german: { major: "Es", minor: "c" },
+                        russian: { major: "Миb", minor: "до" },
+                    },
+                },
+                {
+                    id: "Bb",
+                    spec: "Bb",
+                    names: {
+                        english: { major: "Bb", minor: "g" },
+                        german: { major: "B", minor: "g" },
+                        russian: { major: "Сиb", minor: "соль" },
+                    },
+                },
+                {
+                    id: "F",
+                    spec: "F",
+                    names: {
+                        english: { major: "F", minor: "d" },
+                        german: { major: "F", minor: "d" },
+                        russian: { major: "Фа", minor: "ре" },
+                    },
+                },
+            ];
+
+            let currentKey,
+                score = 0,
+                currentMode = "major",
+                currentSystem = "english",
+                isWaiting = false;
+            let buttons = [];
+
+            // Функция отрисовки знаков
+            function renderNotation(keySpec) {
+                const container = document.getElementById("notation-container");
+                container.innerHTML = ""; // Очистить старое
+
+                const renderer = new Renderer(container, Renderer.Backends.SVG);
+                renderer.resize(180, 120);
+                const context = renderer.getContext();
+
+                // Рисуем стан
+                const stave = new Stave(10, 10, 150);
+                stave.addClef("treble").addKeySignature(keySpec);
+                stave.setContext(context).draw();
+            }
+
+            function updateSettings() {
+                currentMode = document.querySelector(
+                    'input[name="mode"]:checked',
+                ).value;
+                currentSystem = document.querySelector(
+                    'input[name="system"]:checked',
+                ).value;
+                buttons.forEach((item) => {
+                    item.btn.innerText =
+                        item.keyData.names[currentSystem][currentMode];
+                });
+            }
+
+            function buildCircle() {
+                const container = document.getElementById("circle-container");
+                keys.forEach((keyData, i) => {
+                    const btn = document.createElement("div");
+                    btn.className = "key-btn";
+                    const angle = i * (360 / 15) - 90;
+                    const rad = (angle * Math.PI) / 180;
+                    btn.style.left = 50 + Math.cos(rad) * 42 + "%";
+                    btn.style.top = 50 + Math.sin(rad) * 42 + "%";
+
+                    btn.onclick = () => {
+                        if (isWaiting) return;
+                        if (keyData.id === currentKey.id) {
+                            btn.classList.add("correct");
+                            score++;
+                            isWaiting = true;
+                            setTimeout(nextQuestion, 600);
+                        } else {
+                            btn.classList.add("wrong");
+                            score = 0;
+                            setTimeout(
+                                () => btn.classList.remove("wrong"),
+                                400,
+                            );
+                        }
+                        document.getElementById("score-board").innerText =
+                            "Счет: " + score;
+                    };
+                    container.appendChild(btn);
+                    buttons.push({ btn, keyData });
+                });
+            }
+
+            function nextQuestion() {
+                isWaiting = false;
+                buttons.forEach((b) =>
+                    b.btn.classList.remove("correct", "wrong"),
+                );
+                currentKey = keys[Math.floor(Math.random() * keys.length)];
+                renderNotation(currentKey.spec);
+            }
+
+            buildCircle();
+            updateSettings();
+            nextQuestion();
+        </script>
+    </body>
+</html>
