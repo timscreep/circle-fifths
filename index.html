@@ -1,251 +1,430 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Тренажер тональностей Mobile</title>
-    <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
-    <style>
-        :root {
-            --bg-color: #1a1a1d;
-            --panel-color: #25252b;
-            --accent-color: #ffca28;
-            --success: #2e7d32;
-            --error: #c62828;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+<title>Тренажер тональностей</title>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg-color);
-            color: #efefef;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            overflow: hidden; /* Чтобы не скроллилось само по себе */
-        }
+<script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
 
-        /* Сайдбар / Меню настроек */
-        #sidebar {
-            background: var(--panel-color);
-            padding: 10px;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            z-index: 100;
-            font-size: 0.85rem;
-        }
+<style>
 
-        .setting-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
+:root{
+--bg:#1a1a1d;
+--panel:#25252b;
+--accent:#ffca28;
+--good:#2e7d32;
+--bad:#c62828;
+}
 
-        .setting-group strong {
-            font-size: 0.7rem;
-            color: var(--accent-color);
-            text-transform: uppercase;
-        }
+*{
+box-sizing:border-box;
+-webkit-tap-highlight-color:transparent;
+}
 
-        select {
-            background: #333;
-            color: white;
-            border: 1px solid #555;
-            border-radius: 4px;
-            padding: 2px;
-        }
+body{
 
-        /* Основная область */
-        #main-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px;
-            box-sizing: border-box;
-        }
+margin:0;
+background:var(--bg);
+color:#eee;
 
-        #score-board {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #81c784;
-        }
+font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 
-        #notation-container {
-            background: white;
-            border-radius: 8px;
-            width: 160px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
+height:100vh;
+display:flex;
+flex-direction:column;
 
-        /* Квинтовый круг - адаптивный размер */
-        #circle-wrapper {
-            position: relative;
-            width: 90vw;
-            height: 90vw;
-            max-width: 450px;
-            max-height: 450px;
-            margin-bottom: 20px;
-        }
+overflow:hidden;
 
-        #circle-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-        }
+padding-bottom:env(safe-area-inset-bottom);
 
-        .key-btn {
-            position: absolute;
-            width: 55px;
-            height: 55px;
-            border-radius: 50%;
-            background: #33333d;
-            color: white;
-            border: 2px solid #444;
-            cursor: pointer;
-            font-weight: bold;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.1s, background 0.2s;
-            transform: translate(-50%, -50%);
-            font-size: 0.9rem;
-            -webkit-tap-highlight-color: transparent; /* Убирает синюю рамку при нажатии на iOS */
-        }
+}
 
-        .key-btn:active {
-            transform: translate(-50%, -50%) scale(0.9);
-        }
+/* ===== MAIN ===== */
 
-        .correct { background: var(--success) !important; border-color: #a5d6a7 !important; z-index: 10; }
-        .wrong { background: var(--error) !important; border-color: #ef9a9a !important; z-index: 10; }
+#main-area{
 
-        /* Для десктопов возвращаем сайдбар влево */
-        @media (min-width: 768px) {
-            body { flex-direction: row; }
-            #sidebar { width: 200px; height: 100%; flex-direction: column; justify-content: flex-start; gap: 30px; padding: 30px; }
-            #circle-wrapper { width: 500px; height: 500px; }
-            .key-btn { width: 65px; height: 65px; font-size: 1rem; }
-        }
-    </style>
+flex:1;
+
+display:flex;
+flex-direction:column;
+
+align-items:center;
+justify-content:space-between;
+
+padding:14px;
+
+}
+
+/* ===== SCORE ===== */
+
+#score-board{
+
+font-size:1.3rem;
+font-weight:bold;
+color:#81c784;
+
+}
+
+/* ===== NOTATION ===== */
+
+#notation-container{
+
+background:white;
+
+border-radius:12px;
+
+width:92vw;
+max-width:340px;
+
+height:120px;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+box-shadow:0 6px 20px rgba(0,0,0,0.4);
+
+}
+
+/* ===== CIRCLE ===== */
+
+#circle-wrapper{
+
+position:relative;
+
+width:min(92vw,80vh);
+height:min(92vw,80vh);
+
+max-width:440px;
+max-height:440px;
+
+margin-bottom:10px;
+
+}
+
+#circle-container{
+
+position:absolute;
+width:100%;
+height:100%;
+
+}
+
+/* ===== BUTTONS ===== */
+
+.key-btn{
+
+position:absolute;
+
+width:72px;
+height:72px;
+
+border-radius:50%;
+
+background:#33333d;
+color:white;
+
+border:2px solid #444;
+
+font-weight:bold;
+
+display:flex;
+align-items:center;
+justify-content:center;
+
+font-size:0.95rem;
+
+transform:translate(-50%,-50%);
+
+touch-action:manipulation;
+
+transition:transform .08s, background .15s;
+
+}
+
+.key-btn:active{
+
+transform:translate(-50%,-50%) scale(.9);
+
+}
+
+.correct{
+background:var(--good)!important;
+border-color:#a5d6a7!important;
+z-index:5;
+}
+
+.wrong{
+background:var(--bad)!important;
+border-color:#ef9a9a!important;
+}
+
+/* ===== SETTINGS ===== */
+
+#sidebar{
+
+background:var(--panel);
+
+padding:10px;
+
+display:flex;
+justify-content:space-around;
+
+gap:8px;
+
+font-size:.85rem;
+
+}
+
+.setting-group{
+
+display:flex;
+flex-direction:column;
+gap:4px;
+
+}
+
+.setting-group strong{
+
+font-size:.7rem;
+color:var(--accent);
+text-transform:uppercase;
+
+}
+
+select{
+
+background:#333;
+color:white;
+
+border:1px solid #555;
+border-radius:6px;
+
+padding:4px;
+
+}
+
+/* ===== DESKTOP ===== */
+
+@media(min-width:768px){
+
+body{
+flex-direction:row;
+}
+
+#sidebar{
+
+width:220px;
+height:100%;
+
+flex-direction:column;
+
+padding:30px;
+gap:20px;
+
+}
+
+#circle-wrapper{
+width:500px;
+height:500px;
+}
+
+.key-btn{
+
+width:78px;
+height:78px;
+font-size:1rem;
+
+}
+
+}
+
+</style>
 </head>
+
 <body>
 
-
-    <div class="setting-group">
-        <strong>Система</strong>
-        <select id="system-select" onchange="updateSettings()">
-            <option value="english">Английская</option>
-            <option value="german">Немецкая</option>
-            <option value="russian">Русская</option>
-        </select>
-    </div>
-</div>
-
 <div id="main-area">
-    <div id="score-board">Счет: 0</div>
-    <div id="notation-container"></div>
-    <div id="circle-wrapper">
-        <div id="circle-container"></div>
-    </div>
+
+<div id="score-board">Счет: 0</div>
+
+<div id="notation-container"></div>
+
+<div id="circle-wrapper">
+<div id="circle-container"></div>
 </div>
+
+</div>
+
 <div id="sidebar">
-    <div class="setting-group">
-        <strong>Лад</strong>
-        <select id="mode-select" onchange="updateSettings()">
-            <option value="major">Мажор</option>
-            <option value="minor">Минор</option>
-        </select>
-    </div>
+
+<div class="setting-group">
+<strong>Система</strong>
+<select id="system-select" onchange="updateSettings()">
+<option value="english">Английская</option>
+<option value="german">Немецкая</option>
+<option value="russian">Русская</option>
+</select>
+</div>
+
+<div class="setting-group">
+<strong>Лад</strong>
+<select id="mode-select" onchange="updateSettings()">
+<option value="major">Мажор</option>
+<option value="minor">Минор</option>
+</select>
+</div>
+
+</div>
+
 <script>
-    const { Renderer, Stave } = Vex.Flow;
 
-    const keys = [
-        { id: 'C', spec: 'C', names: { english: { major: 'C', minor: 'a' }, german: { major: 'C', minor: 'a' }, russian: { major: 'До', minor: 'ля' } } },
-        { id: 'G', spec: 'G', names: { english: { major: 'G', minor: 'e' }, german: { major: 'G', minor: 'e' }, russian: { major: 'Соль', minor: 'ми' } } },
-        { id: 'D', spec: 'D', names: { english: { major: 'D', minor: 'b' }, german: { major: 'D', minor: 'h' }, russian: { major: 'Ре', minor: 'си' } } },
-        { id: 'A', spec: 'A', names: { english: { major: 'A', minor: 'f#' }, german: { major: 'A', minor: 'fis' }, russian: { major: 'Ля', minor: 'фа#' } } },
-        { id: 'E', spec: 'E', names: { english: { major: 'E', minor: 'c#' }, german: { major: 'E', minor: 'cis' }, russian: { major: 'Ми', minor: 'до#' } } },
-        { id: 'B', spec: 'B', names: { english: { major: 'B', minor: 'g#' }, german: { major: 'H', minor: 'gis' }, russian: { major: 'Си', minor: 'соль#' } } },
-        { id: 'F#', spec: 'F#', names: { english: { major: 'F#', minor: 'd#' }, german: { major: 'Fis', minor: 'dis' }, russian: { major: 'Фа#', minor: 'ре#' } } },
-        { id: 'C#', spec: 'C#', names: { english: { major: 'C#', minor: 'a#' }, german: { major: 'Cis', minor: 'ais' }, russian: { major: 'До#', minor: 'ля#' } } },
-        { id: 'Cb', spec: 'Cb', names: { english: { major: 'Cb', minor: 'ab' }, german: { major: 'Ces', minor: 'as' }, russian: { major: 'Доb', minor: 'ляb' } } },
-        { id: 'Gb', spec: 'Gb', names: { english: { major: 'Gb', minor: 'eb' }, german: { major: 'Ges', minor: 'es' }, russian: { major: 'Сольb', minor: 'миb' } } },
-        { id: 'Db', spec: 'Db', names: { english: { major: 'Db', minor: 'bb' }, german: { major: 'Des', minor: 'b' }, russian: { major: 'Реb', minor: 'сиb' } } },
-        { id: 'Ab', spec: 'Ab', names: { english: { major: 'Ab', minor: 'f' }, german: { major: 'As', minor: 'f' }, russian: { major: 'Ляb', minor: 'фа' } } },
-        { id: 'Eb', spec: 'Eb', names: { english: { major: 'Eb', minor: 'c' }, german: { major: 'Es', minor: 'c' }, russian: { major: 'Миb', minor: 'до' } } },
-        { id: 'Bb', spec: 'Bb', names: { english: { major: 'Bb', minor: 'g' }, german: { major: 'B', minor: 'g' }, russian: { major: 'Сиb', minor: 'соль' } } },
-        { id: 'F', spec: 'F', names: { english: { major: 'F', minor: 'd' }, german: { major: 'F', minor: 'd' }, russian: { major: 'Фа', minor: 'ре' } } }
-    ];
+const {Renderer,Stave}=Vex.Flow
 
-    let currentKey, score = 0, isWaiting = false;
-    let buttons = [];
+const keys=[
 
-    function renderNotation(keySpec) {
-        const container = document.getElementById('notation-container');
-        container.innerHTML = '';
-        const renderer = new Renderer(container, Renderer.Backends.SVG);
-        renderer.resize(150, 100);
-        const context = renderer.getContext();
-        const stave = new Stave(0, 0, 140);
-        stave.addClef("treble").addKeySignature(keySpec);
-        stave.setContext(context).draw();
-    }
+{ id:'C',spec:'C',names:{english:{major:'C',minor:'a'},german:{major:'C',minor:'a'},russian:{major:'До',minor:'ля'}}},
 
-    function updateSettings() {
-        const mode = document.getElementById('mode-select').value;
-        const system = document.getElementById('system-select').value;
-        buttons.forEach(item => {
-            item.btn.innerText = item.keyData.names[system][mode];
-        });
-    }
+{ id:'G',spec:'G',names:{english:{major:'G',minor:'e'},german:{major:'G',minor:'e'},russian:{major:'Соль',minor:'ми'}}},
 
-    function buildCircle() {
-        const container = document.getElementById('circle-container');
-        keys.forEach((keyData, i) => {
-            const btn = document.createElement('div');
-            btn.className = 'key-btn';
-            const angle = (i * (360/15)) - 90;
-            const rad = angle * Math.PI / 180;
-            // Используем % для адаптивности внутри обертки
-            btn.style.left = (50 + Math.cos(rad) * 40) + '%';
-            btn.style.top = (50 + Math.sin(rad) * 40) + '%';
-            
-            btn.onclick = () => {
-                if(isWaiting) return;
-                if(keyData.id === currentKey.id) {
-                    btn.classList.add('correct');
-                    score++;
-                    isWaiting = true;
-                    setTimeout(nextQuestion, 500);
-                } else {
-                    btn.classList.add('wrong');
-                    score = 0;
-                    setTimeout(() => btn.classList.remove('wrong'), 400);
-                }
-                document.getElementById('score-board').innerText = 'Счет: ' + score;
-            };
-            container.appendChild(btn);
-            buttons.push({btn, keyData});
-        });
-    }
+{ id:'D',spec:'D',names:{english:{major:'D',minor:'b'},german:{major:'D',minor:'h'},russian:{major:'Ре',minor:'си'}}},
 
-    function nextQuestion() {
-        isWaiting = false;
-        buttons.forEach(b => b.btn.classList.remove('correct', 'wrong'));
-        currentKey = keys[Math.floor(Math.random() * keys.length)];
-        renderNotation(currentKey.spec);
-    }
+{ id:'A',spec:'A',names:{english:{major:'A',minor:'f#'},german:{major:'A',minor:'fis'},russian:{major:'Ля',minor:'фа#'}}},
 
-    buildCircle();
-    updateSettings();
-    nextQuestion();
+{ id:'E',spec:'E',names:{english:{major:'E',minor:'c#'},german:{major:'E',minor:'cis'},russian:{major:'Ми',minor:'до#'}}},
+
+{ id:'B',spec:'B',names:{english:{major:'B',minor:'g#'},german:{major:'H',minor:'gis'},russian:{major:'Си',minor:'соль#'}}},
+
+{ id:'F#',spec:'F#',names:{english:{major:'F#',minor:'d#'},german:{major:'Fis',minor:'dis'},russian:{major:'Фа#',minor:'ре#'}}},
+
+{ id:'C#',spec:'C#',names:{english:{major:'C#',minor:'a#'},german:{major:'Cis',minor:'ais'},russian:{major:'До#',minor:'ля#'}}},
+
+{ id:'Cb',spec:'Cb',names:{english:{major:'Cb',minor:'ab'},german:{major:'Ces',minor:'as'},russian:{major:'Доb',minor:'ляb'}}},
+
+{ id:'Gb',spec:'Gb',names:{english:{major:'Gb',minor:'eb'},german:{major:'Ges',minor:'es'},russian:{major:'Сольb',minor:'миb'}}},
+
+{ id:'Db',spec:'Db',names:{english:{major:'Db',minor:'bb'},german:{major:'Des',minor:'b'},russian:{major:'Реb',minor:'сиb'}}},
+
+{ id:'Ab',spec:'Ab',names:{english:{major:'Ab',minor:'f'},german:{major:'As',minor:'f'},russian:{major:'Ляb',minor:'фа'}}},
+
+{ id:'Eb',spec:'Eb',names:{english:{major:'Eb',minor:'c'},german:{major:'Es',minor:'c'},russian:{major:'Миb',minor:'до'}}},
+
+{ id:'Bb',spec:'Bb',names:{english:{major:'Bb',minor:'g'},german:{major:'B',minor:'g'},russian:{major:'Сиb',minor:'соль'}}},
+
+{ id:'F',spec:'F',names:{english:{major:'F',minor:'d'},german:{major:'F',minor:'d'},russian:{major:'Фа',minor:'ре'}}}
+
+]
+
+let currentKey
+let score=0
+let waiting=false
+let buttons=[]
+
+function renderNotation(key){
+
+const container=document.getElementById("notation-container")
+
+container.innerHTML=""
+
+const w=container.clientWidth
+
+const renderer=new Renderer(container,Renderer.Backends.SVG)
+
+renderer.resize(w,120)
+
+const context=renderer.getContext()
+
+const stave=new Stave(10,10,w-20)
+
+stave.addClef("treble").addKeySignature(key)
+
+stave.setContext(context).draw()
+
+}
+
+function updateSettings(){
+
+const mode=document.getElementById("mode-select").value
+const system=document.getElementById("system-select").value
+
+buttons.forEach(b=>{
+b.btn.innerText=b.keyData.names[system][mode]
+})
+
+}
+
+function buildCircle(){
+
+const container=document.getElementById("circle-container")
+
+keys.forEach((keyData,i)=>{
+
+const btn=document.createElement("div")
+
+btn.className="key-btn"
+
+const angle=(i*(360/15))-90
+const rad=angle*Math.PI/180
+
+btn.style.left=(50+Math.cos(rad)*42)+"%"
+btn.style.top=(50+Math.sin(rad)*42)+"%"
+
+btn.onclick=()=>{
+
+if(waiting)return
+
+if(keyData.id===currentKey.id){
+
+btn.classList.add("correct")
+
+score++
+
+waiting=true
+
+setTimeout(nextQuestion,500)
+
+}
+
+else{
+
+btn.classList.add("wrong")
+
+score=0
+
+setTimeout(()=>btn.classList.remove("wrong"),400)
+
+}
+
+document.getElementById("score-board").innerText="Счет: "+score
+
+}
+
+container.appendChild(btn)
+
+buttons.push({btn,keyData})
+
+})
+
+}
+
+function nextQuestion(){
+
+waiting=false
+
+buttons.forEach(b=>b.btn.classList.remove("correct","wrong"))
+
+currentKey=keys[Math.floor(Math.random()*keys.length)]
+
+renderNotation(currentKey.spec)
+
+}
+
+buildCircle()
+updateSettings()
+nextQuestion()
+
 </script>
+
 </body>
 </html>
