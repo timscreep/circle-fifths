@@ -2,7 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
+
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
+
 <title>Тренажер тональностей</title>
 
 <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
@@ -31,16 +34,36 @@ color:#eee;
 font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 
 height:100vh;
+overflow:hidden;
+
 display:flex;
 flex-direction:column;
-
-overflow:hidden;
 
 padding-bottom:env(safe-area-inset-bottom);
 
 }
 
-/* ===== MAIN ===== */
+/* HEADER */
+
+#topbar{
+
+height:50px;
+display:flex;
+align-items:center;
+justify-content:space-between;
+
+padding:0 14px;
+
+}
+
+#settingsBtn{
+
+font-size:22px;
+cursor:pointer;
+
+}
+
+/* MAIN */
 
 #main-area{
 
@@ -52,11 +75,9 @@ flex-direction:column;
 align-items:center;
 justify-content:space-between;
 
-padding:14px;
+padding:12px;
 
 }
-
-/* ===== SCORE ===== */
 
 #score-board{
 
@@ -66,7 +87,7 @@ color:#81c784;
 
 }
 
-/* ===== NOTATION ===== */
+/* NOTATION */
 
 #notation-container{
 
@@ -87,19 +108,17 @@ box-shadow:0 6px 20px rgba(0,0,0,0.4);
 
 }
 
-/* ===== CIRCLE ===== */
+/* CIRCLE */
 
 #circle-wrapper{
 
 position:relative;
 
-width:min(92vw,80vh);
-height:min(92vw,80vh);
+width:min(92vw,75vh);
+height:min(92vw,75vh);
 
 max-width:440px;
 max-height:440px;
-
-margin-bottom:10px;
 
 }
 
@@ -111,14 +130,14 @@ height:100%;
 
 }
 
-/* ===== BUTTONS ===== */
+/* BUTTONS */
 
 .key-btn{
 
 position:absolute;
 
-width:72px;
-height:72px;
+width:74px;
+height:74px;
 
 border-radius:50%;
 
@@ -133,26 +152,23 @@ display:flex;
 align-items:center;
 justify-content:center;
 
-font-size:0.95rem;
+font-size:.95rem;
 
 transform:translate(-50%,-50%);
 
 touch-action:manipulation;
 
-transition:transform .08s, background .15s;
+transition:.08s;
 
 }
 
 .key-btn:active{
-
 transform:translate(-50%,-50%) scale(.9);
-
 }
 
 .correct{
 background:var(--good)!important;
 border-color:#a5d6a7!important;
-z-index:5;
 }
 
 .wrong{
@@ -160,27 +176,53 @@ background:var(--bad)!important;
 border-color:#ef9a9a!important;
 }
 
-/* ===== SETTINGS ===== */
+/* SETTINGS DRAWER */
 
-#sidebar{
+#drawer{
+
+position:fixed;
+
+bottom:-260px;
+left:0;
+
+width:100%;
 
 background:var(--panel);
 
-padding:10px;
+border-radius:16px 16px 0 0;
 
-display:flex;
-justify-content:space-around;
+padding:20px;
 
-gap:8px;
+transition:.3s;
 
-font-size:.85rem;
+box-shadow:0 -10px 30px rgba(0,0,0,.5);
+
+}
+
+#drawer.open{
+bottom:0;
+}
+
+.drawer-handle{
+
+width:40px;
+height:4px;
+
+background:#666;
+
+border-radius:2px;
+
+margin:0 auto 14px auto;
 
 }
 
 .setting-group{
 
+margin-bottom:16px;
+
 display:flex;
 flex-direction:column;
+
 gap:4px;
 
 }
@@ -189,6 +231,7 @@ gap:4px;
 
 font-size:.7rem;
 color:var(--accent);
+
 text-transform:uppercase;
 
 }
@@ -201,41 +244,38 @@ color:white;
 border:1px solid #555;
 border-radius:6px;
 
-padding:4px;
+padding:6px;
+
+font-size:.9rem;
 
 }
 
-/* ===== DESKTOP ===== */
+/* DESKTOP */
 
 @media(min-width:768px){
+
+#drawer{
+
+bottom:0;
+right:auto;
+
+width:240px;
+height:100%;
+
+border-radius:0;
+
+}
+
+#drawer.open{
+bottom:0;
+}
 
 body{
 flex-direction:row;
 }
 
-#sidebar{
-
-width:220px;
-height:100%;
-
-flex-direction:column;
-
-padding:30px;
-gap:20px;
-
-}
-
-#circle-wrapper{
-width:500px;
-height:500px;
-}
-
-.key-btn{
-
-width:78px;
-height:78px;
-font-size:1rem;
-
+#main-area{
+flex:1;
 }
 
 }
@@ -245,9 +285,15 @@ font-size:1rem;
 
 <body>
 
-<div id="main-area">
+<div id="topbar">
 
 <div id="score-board">Счет: 0</div>
+
+<div id="settingsBtn">⚙</div>
+
+</div>
+
+<div id="main-area">
 
 <div id="notation-container"></div>
 
@@ -257,7 +303,9 @@ font-size:1rem;
 
 </div>
 
-<div id="sidebar">
+<div id="drawer">
+
+<div class="drawer-handle"></div>
 
 <div class="setting-group">
 <strong>Система</strong>
@@ -285,33 +333,19 @@ const {Renderer,Stave}=Vex.Flow
 const keys=[
 
 { id:'C',spec:'C',names:{english:{major:'C',minor:'a'},german:{major:'C',minor:'a'},russian:{major:'До',minor:'ля'}}},
-
 { id:'G',spec:'G',names:{english:{major:'G',minor:'e'},german:{major:'G',minor:'e'},russian:{major:'Соль',minor:'ми'}}},
-
 { id:'D',spec:'D',names:{english:{major:'D',minor:'b'},german:{major:'D',minor:'h'},russian:{major:'Ре',minor:'си'}}},
-
 { id:'A',spec:'A',names:{english:{major:'A',minor:'f#'},german:{major:'A',minor:'fis'},russian:{major:'Ля',minor:'фа#'}}},
-
 { id:'E',spec:'E',names:{english:{major:'E',minor:'c#'},german:{major:'E',minor:'cis'},russian:{major:'Ми',minor:'до#'}}},
-
 { id:'B',spec:'B',names:{english:{major:'B',minor:'g#'},german:{major:'H',minor:'gis'},russian:{major:'Си',minor:'соль#'}}},
-
 { id:'F#',spec:'F#',names:{english:{major:'F#',minor:'d#'},german:{major:'Fis',minor:'dis'},russian:{major:'Фа#',minor:'ре#'}}},
-
 { id:'C#',spec:'C#',names:{english:{major:'C#',minor:'a#'},german:{major:'Cis',minor:'ais'},russian:{major:'До#',minor:'ля#'}}},
-
 { id:'Cb',spec:'Cb',names:{english:{major:'Cb',minor:'ab'},german:{major:'Ces',minor:'as'},russian:{major:'Доb',minor:'ляb'}}},
-
 { id:'Gb',spec:'Gb',names:{english:{major:'Gb',minor:'eb'},german:{major:'Ges',minor:'es'},russian:{major:'Сольb',minor:'миb'}}},
-
 { id:'Db',spec:'Db',names:{english:{major:'Db',minor:'bb'},german:{major:'Des',minor:'b'},russian:{major:'Реb',minor:'сиb'}}},
-
 { id:'Ab',spec:'Ab',names:{english:{major:'Ab',minor:'f'},german:{major:'As',minor:'f'},russian:{major:'Ляb',minor:'фа'}}},
-
 { id:'Eb',spec:'Eb',names:{english:{major:'Eb',minor:'c'},german:{major:'Es',minor:'c'},russian:{major:'Миb',minor:'до'}}},
-
 { id:'Bb',spec:'Bb',names:{english:{major:'Bb',minor:'g'},german:{major:'B',minor:'g'},russian:{major:'Сиb',minor:'соль'}}},
-
 { id:'F',spec:'F',names:{english:{major:'F',minor:'d'},german:{major:'F',minor:'d'},russian:{major:'Фа',minor:'ре'}}}
 
 ]
@@ -324,13 +358,11 @@ let buttons=[]
 function renderNotation(key){
 
 const container=document.getElementById("notation-container")
-
 container.innerHTML=""
 
 const w=container.clientWidth
 
 const renderer=new Renderer(container,Renderer.Backends.SVG)
-
 renderer.resize(w,120)
 
 const context=renderer.getContext()
@@ -361,7 +393,6 @@ const container=document.getElementById("circle-container")
 keys.forEach((keyData,i)=>{
 
 const btn=document.createElement("div")
-
 btn.className="key-btn"
 
 const angle=(i*(360/15))-90
@@ -377,19 +408,14 @@ if(waiting)return
 if(keyData.id===currentKey.id){
 
 btn.classList.add("correct")
-
 score++
-
 waiting=true
 
 setTimeout(nextQuestion,500)
 
-}
-
-else{
+}else{
 
 btn.classList.add("wrong")
-
 score=0
 
 setTimeout(()=>btn.classList.remove("wrong"),400)
@@ -418,6 +444,14 @@ currentKey=keys[Math.floor(Math.random()*keys.length)]
 
 renderNotation(currentKey.spec)
 
+}
+
+/* drawer */
+
+const drawer=document.getElementById("drawer")
+
+document.getElementById("settingsBtn").onclick=()=>{
+drawer.classList.toggle("open")
 }
 
 buildCircle()
