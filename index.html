@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 
 <meta name="viewport"
-content="width=device-width,initial-scale=1.0,viewport-fit=cover,maximum-scale=1.0,user-scalable=no">
+content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 
 <title>Тренажер тональностей</title>
 
@@ -39,11 +39,9 @@ overflow:hidden;
 display:flex;
 flex-direction:column;
 
-padding-bottom:env(safe-area-inset-bottom);
-
 }
 
-/* HEADER */
+/* header */
 
 #topbar{
 
@@ -57,13 +55,11 @@ padding:0 14px;
 }
 
 #settingsBtn{
-
 font-size:22px;
 cursor:pointer;
-
 }
 
-/* MAIN */
+/* main */
 
 #main-area{
 
@@ -73,9 +69,9 @@ display:flex;
 flex-direction:column;
 
 align-items:center;
-justify-content:space-between;
+justify-content:space-evenly;
 
-padding:12px;
+padding:10px;
 
 }
 
@@ -87,7 +83,7 @@ color:#81c784;
 
 }
 
-/* NOTATION */
+/* notation */
 
 #notation-container{
 
@@ -96,9 +92,9 @@ background:white;
 border-radius:12px;
 
 width:92vw;
-max-width:340px;
+max-width:360px;
 
-height:120px;
+height:110px;
 
 display:flex;
 align-items:center;
@@ -108,17 +104,18 @@ box-shadow:0 6px 20px rgba(0,0,0,0.4);
 
 }
 
-/* CIRCLE */
+/* circle */
 
 #circle-wrapper{
 
 position:relative;
 
-width:min(92vw,75vh);
-height:min(92vw,75vh);
+width:min(88vw,420px);
+height:min(88vw,420px);
 
-max-width:440px;
-max-height:440px;
+display:flex;
+align-items:center;
+justify-content:center;
 
 }
 
@@ -130,14 +127,14 @@ height:100%;
 
 }
 
-/* BUTTONS */
+/* buttons */
 
 .key-btn{
 
 position:absolute;
 
-width:74px;
-height:74px;
+width:clamp(54px,14vw,70px);
+height:clamp(54px,14vw,70px);
 
 border-radius:50%;
 
@@ -152,13 +149,11 @@ display:flex;
 align-items:center;
 justify-content:center;
 
-font-size:.95rem;
+font-size:.9rem;
 
 transform:translate(-50%,-50%);
 
-touch-action:manipulation;
-
-transition:.08s;
+transition:.1s;
 
 }
 
@@ -168,15 +163,13 @@ transform:translate(-50%,-50%) scale(.9);
 
 .correct{
 background:var(--good)!important;
-border-color:#a5d6a7!important;
 }
 
 .wrong{
 background:var(--bad)!important;
-border-color:#ef9a9a!important;
 }
 
-/* SETTINGS DRAWER */
+/* drawer */
 
 #drawer{
 
@@ -186,16 +179,19 @@ bottom:-260px;
 left:0;
 
 width:100%;
+height:260px;
 
 background:var(--panel);
 
-border-radius:16px 16px 0 0;
+border-radius:18px 18px 0 0;
 
 padding:20px;
 
-transition:.3s;
+transition:bottom .28s;
 
 box-shadow:0 -10px 30px rgba(0,0,0,.5);
+
+touch-action:none;
 
 }
 
@@ -205,12 +201,12 @@ bottom:0;
 
 .drawer-handle{
 
-width:40px;
-height:4px;
+width:44px;
+height:5px;
 
 background:#666;
 
-border-radius:2px;
+border-radius:3px;
 
 margin:0 auto 14px auto;
 
@@ -247,36 +243,6 @@ border-radius:6px;
 padding:6px;
 
 font-size:.9rem;
-
-}
-
-/* DESKTOP */
-
-@media(min-width:768px){
-
-#drawer{
-
-bottom:0;
-right:auto;
-
-width:240px;
-height:100%;
-
-border-radius:0;
-
-}
-
-#drawer.open{
-bottom:0;
-}
-
-body{
-flex-direction:row;
-}
-
-#main-area{
-flex:1;
-}
 
 }
 
@@ -363,7 +329,7 @@ container.innerHTML=""
 const w=container.clientWidth
 
 const renderer=new Renderer(container,Renderer.Backends.SVG)
-renderer.resize(w,120)
+renderer.resize(w,110)
 
 const context=renderer.getContext()
 
@@ -398,8 +364,8 @@ btn.className="key-btn"
 const angle=(i*(360/15))-90
 const rad=angle*Math.PI/180
 
-btn.style.left=(50+Math.cos(rad)*42)+"%"
-btn.style.top=(50+Math.sin(rad)*42)+"%"
+btn.style.left=(50+Math.cos(rad)*44)+"%"
+btn.style.top=(50+Math.sin(rad)*44)+"%"
 
 btn.onclick=()=>{
 
@@ -410,7 +376,6 @@ if(keyData.id===currentKey.id){
 btn.classList.add("correct")
 score++
 waiting=true
-
 setTimeout(nextQuestion,500)
 
 }else{
@@ -446,13 +411,38 @@ renderNotation(currentKey.spec)
 
 }
 
-/* drawer */
+/* drawer swipe */
 
 const drawer=document.getElementById("drawer")
+const settingsBtn=document.getElementById("settingsBtn")
 
-document.getElementById("settingsBtn").onclick=()=>{
+settingsBtn.onclick=()=>{
 drawer.classList.toggle("open")
 }
+
+let startY=null
+
+drawer.addEventListener("touchstart",e=>{
+startY=e.touches[0].clientY
+})
+
+drawer.addEventListener("touchmove",e=>{
+
+if(startY===null)return
+
+let delta=e.touches[0].clientY-startY
+
+if(delta>60){
+drawer.classList.remove("open")
+startY=null
+}
+
+if(delta<-60){
+drawer.classList.add("open")
+startY=null
+}
+
+})
 
 buildCircle()
 updateSettings()
